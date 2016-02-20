@@ -38,8 +38,9 @@ weights=get_we(pca.lambdas_)
 dax['PCA_5']=np.dot(pca_components,weights)
 dax.apply(scale_function).plot(figsize=(8,4))
 #散点图
-import matplotlib as mpl
-mpl_dates=mpl.dates.date2num(data.index)
+
+mpl_dates=mpl.dates.date2num([n for n in pd.to_datetime(data.index)])
+#mpl_dates=mpl.dates.date2num(data.index)
 mpl_dates
 plt.figure(figsize=(8,4))
 plt.scatter(dax['PCA_5'],dax['DJIA'],c=mpl_dates)
@@ -49,4 +50,19 @@ plt.grid(True)
 plt.xlabel('PCA_5')
 plt.ylabel('DJIA')
 plt.colorbar(ticks=mpl.dates.DayLocator(interval=250),format=mpl.dates.DateFormatter('%d %b %y'))
+cut_date='2011/7/1'
+early_pca=dax[dax.index<cut_date]['PCA_5']
+early_reg=np.polyval(np.polyfit(early_pca,dax['DJIA'][dax.index<cut_date],1),early_pca)
+late_pca=dax[dax.index>=cut_date]['PCA_5']
+late_reg=np.polyval(np.polyfit(late_pca,dax['DJIA'][dax.index>=cut_date],1),late_pca)
+plt.figure(figsize=(8,4))
+plt.scatter(dax['PCA_5'],dax['DJIA'],c=mpl_dates)
+plt.plot(early_pca,early_reg,'r',lw=3)
+plt.plot(late_pca,late_reg,'r',lw=3)
+plt.grid(True)
+plt.xlabel('PCA_5')
+plt.ylabel('DJIA')
+plt.colorbar(ticks=mpl.dates.DayLocator(interval=250),format=mpl.dates.DateFormatter('%d %b %y'))
+
+
 
